@@ -1,0 +1,70 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "filters": {
+        "non_error": {
+            "()": "backend.logs.NonErrorFilter"
+        },
+        "allow_mine_only": {
+            "()": "backend.logs.AllowMyLoggersOnlyFilter",
+            "allowed_loggers" : [
+                // FILL ME IN
+            ]
+        }
+    },
+    "formatters": {
+        "simple": {
+            "format": "%(levelname)s: %(message)s"
+        },
+        "detailed": {
+            "format": "[%(levelname)s|%(module)s|L%(lineno)d] %(asctime)s: %(message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%S%z"
+        },
+        "json": {
+            "()": "backend.logs.JSONFormatter",
+            "fmt_keys": {
+                "level": "levelname",
+                "message": "message",
+                "timestamp": "timestamp",
+                "logger": "name",
+                "module": "module",
+                "function": "funcName",
+                "line": "lineno"
+            }
+
+        }
+    },
+    "handlers": {
+        "stdout": {
+            "class": "logging.StreamHandler",
+            "level": "DEBUG",
+            "formatter": "simple",
+            "stream": "ext://sys.stdout",
+            "filters": ["non_error", "allow_mine_only"]
+        },
+        "stderr": {
+            "class": "logging.StreamHandler",
+            "level": "WARNING",
+            "formatter": "simple",
+            "stream": "ext://sys.stdout",
+            "filters": ["allow_mine_only"]
+        },
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "level": "DEBUG",
+            "formatter": "json",
+            "filename": "logs/app.log.jsonl",
+            "maxBytes": 100000000,
+            "backupCount": 3,
+            "filters": ["allow_mine_only"]
+        }
+    },
+    "loggers": {
+        "root": {
+            "level": "DEBUG",
+            "handlers": [
+                "file"
+            ]
+        }
+    }
+}
